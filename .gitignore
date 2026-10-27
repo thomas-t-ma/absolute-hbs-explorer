@@ -1,0 +1,17 @@
+node_modules/
+dist/
+src-tauri/target/
+src-tauri/gen/
+*.xlsx
+*.xls
+*.xlsm
+*.csv
+!tests/*.csv
+Data/
+**/Data/
+private/
+HbS_Explorer_Private/
+exports/
+*.log
+.DS_Store
+!tests/synthetic_named.xlsx
