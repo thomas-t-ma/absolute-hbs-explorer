@@ -33,8 +33,8 @@ For native Windows testing, the same `Data/` convention works beside `Absolute H
 
 ## Build on GitHub instead of a Mac
 
-1. Create a new repository (private is preferable, code only). Do **not** upload `.xlsx`, exports or patient names.
-2. Commit the source files including `.github/workflows/build-mac.yml`.
+1. Use the existing `thomas-t-ma/absolute-hbs-explorer` repository. It is public, so **never** upload `.xlsx`, exports, patient names, or mapping files.
+2. The source and `.github/workflows/build-mac.yml` have already been committed.
 3. Go to **Actions → Build macOS installer (manual) → Run workflow**.
 4. After the run succeeds, download the artifact. It includes a standard `.dmg` and a **portable Mac ZIP** with the `Data/` folder ready for the private spreadsheet.
 5. On the Mac, extract the ZIP, place the approved workbook in `Data/`, and double-click the `.app`. This is an *ad-hoc signed, unnotarized test build*; managed Macs might block it, and IT approval or proper notarization is needed for routine distribution.
@@ -43,12 +43,12 @@ The workflow is **manually triggered only** to conserve GitHub Actions minutes. 
 
 ## Labels and graph behavior
 
-The opening screen shows individual patient graphs by their median **positive** absolute-HbS rise (g/dL per 30 days) across consecutive lab samples 7–90 days apart. **High drive** means at or above the *median patient rate among sufficiently sampled patients* in the loaded workbook; **Low drive** means below it. Fewer than three eligible increases → **Insufficient data**. These labels are exploratory and cannot prove proliferative drive after RCE because RCE dates are not available.
+The opening screen shows individual patient graphs, with black curves and amber highlights for steep rises. Patient comparison curves use distinct **solid colors**. **High drive** means at or above the *median patient rate among sufficiently sampled patients* in the loaded workbook; **Low drive** means below it. Fewer than three eligible increases → **Insufficient data**. These labels are exploratory and cannot prove proliferative drive after RCE because RCE dates are not available.
 
 Individual graphs: black curves/dots, amber highlights for rapid rises, identical axes. Comparison: red for high group, blue for low group, gray for insufficient, different solid line shades per patient within each group. Click any dot for its exact Excel row, date, and calculation. Source CSV export includes **deidentified IDs only**, even when names are displayed.
 
 Keep real patient data on institution-approved, access-controlled storage. Do not put real `.xlsx` workbooks in the GitHub repository, an Actions artifact, or an unapproved cloud-synced folder.
 
-### Publish this source to your existing public repository
+### Repository status
 
-On Windows, double-click **`Publish-To-GitHub.bat`**. It clones `thomas-t-ma/absolute-hbs-explorer`, copies only explicitly approved source files (not `Data/` or any real spreadsheets), commits, and pushes. Git for Windows and repository authentication are required. The public repository contains no actual patient data.
+The source is already published in the public GitHub repository. There is no need to run `Publish-To-GitHub.bat` again. To test a new Mac build, use the repository's manual GitHub Actions workflow. Do not commit patient data.
