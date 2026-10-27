@@ -1,32 +1,49 @@
 # Absolute HbS Explorer
 
-Offline research dashboard for absolute HbS time-series measurements. The target user is a PI on macOS; development can be done from Windows.
+Local desktop application for exploring absolute hemoglobin S measurements over time. Designed for a PI who needs to identify patients with faster observed HbS increases.
 
-See [QUICK_START.md](QUICK_START.md) for the shortest setup, the portable Mac app layout, and GitHub build steps.
+## What it does
 
-### How it works
+- **Opens on Patient graphs:** individual black curves with highlighted steep HbS rises and a consistent time and HbS scale.
+- **Compare patients:** solid, individually colored curves; warmer colors for higher relative rise rates, cooler colors for lower rates.
+- **High / low drive:** exploratory cohort-relative labels based on the median *positive* HbS rise (g/dL per 30 days) between samples 7–90 days apart. At least three eligible intervals are required; otherwise the patient is labeled **Insufficient data**.
+- **Click any point:** inspect its value, timestamp, calculated rise rate, and original Excel sheet/row.
+- **Patient names by default** when the workbook includes `FullName`, with a hide-names option.
+- **Automatic Excel loading** in the desktop app from `Data/HbS_Absolute_Values.xlsx` beside the app or `~/Documents/Absolute HbS Explorer/Data/` on macOS. Manual file selection remains available.
 
-- **High / low drive** (home view): patient ranking with exploratory cohort-relative labels, based on median positive HbS increase over 7–90-day consecutive-sample intervals across the full record (minimum 3 rising intervals); insufficient-sample patients are not classified.
-- **Patient graphs**: synchronized date / g/dL axes, black line and dots with optional amber rapid-rise highlights.
-- **Compare patients**: group colors (high red, low blue, insufficient gray), distinct line styles within each group. No segment-highlighting colors in this overlay.
-- **Point inspection**: click a dot to view its value, timing, derived rate, source calculation and Excel sheet/row. It can open the source workbook through the native OS; automatic cell selection in Excel is not yet available.
-- **Names**: the `FullName` column is displayed by default when present, with a screen-share hiding toggle. The local original workbook remains outside the source repository.
-- **Automatically opens data** in the native app: looks for `Data/HbS_Absolute_Values.xlsx` beside the Mac `.app` / Windows `.exe`, and also checks `~/Documents/Absolute HbS Explorer/Data/` on Mac. Browser preview still requires manual file selection.
+**Research prototype:** “High drive” and “Low drive” mean higher/lower *observed HbS rise* within this cohort. They are not clinically validated labels of post-RCE proliferative drive; confirmed RCE dates are not available.
 
-### Windows preview
+## Run the interface on Windows
 
-Install Node.js LTS, then run `Start-Windows-Preview.bat`. Or use `npm install && npm test && npm run dev`. To run the native desktop application on Windows, Rust and Visual Studio C++ Build Tools are additionally needed. These are **not** necessary for the initial browser preview.
+Install Node.js LTS, then double-click `Start-Windows-Preview.bat`. Alternatively:
 
-### macOS distribution
+```sh
+npm install
+npm test
+npm run dev
+```
 
-`.github/workflows/build-mac.yml` contains a **manual-only** GitHub Actions workflow that builds a universal macOS `.dmg` and a portable ZIP with `Data/` beside the `.app`. The workflow has not been executed yet; native Apple compilation and installation require verification. Ad-hoc signing is for testing only; coordinate formal code signing/notarization and institutional security approval before regular PI distribution.
+The browser preview uses fictional demo data until you select an Excel workbook. Testing the native Windows desktop app additionally requires Rust and the Windows C++ build tools.
 
-### Data protection and limitations
+## Create the macOS app without developing on a Mac
 
-The repository contains only fictional demonstration data. `.gitignore` excludes spreadsheet files and local Data folders. The `.xlsx` parser runs entirely on the user's computer and does not send network requests. An identifiable workbook, screenshots, and chart exports require institutional handling appropriate for protected health information. Classifications are **exploratory, not clinically validated** and are not RCE-confirmed measurements of proliferative drive. No tool here automatically confirms exchanges.
+Open **Actions → Build macOS installer (manual) → Run workflow** in this repository. When the build succeeds, download the workflow artifact containing a macOS `.dmg` and portable `.app` ZIP. The workflow runs only when requested.
 
-The test suite includes workbook date/column handling and cohort-relative classification. `npm test` runs the six JavaScript tests. Direct macOS file-load/build tests still need a native runner.
+For a portable installation, extract the Mac ZIP and place your private workbook here on an approved device:
 
-## Publish source from Windows
+```text
+Absolute HbS Explorer/
+├── Absolute HbS Explorer.app
+└── Data/
+    └── HbS_Absolute_Values.xlsx
+```
 
-On Windows, extract the ZIP and double-click `Publish-To-GitHub.bat`. Requires Git for Windows and access to the existing public repository. The helper uses a strict allowlist, copying only application source and the explicitly fictional test workbook. It leaves `Data/` and real workbooks outside version control. After publishing, go to the repository Actions tab to run the manual macOS build.
+Then open the app. The workbook is **never** packaged into the application or GitHub artifacts.
+
+The macOS build has not yet been verified. It is ad-hoc signed for testing; macOS Gatekeeper or institutional IT policy may prevent opening an unnotarized app. Regular distribution may require Apple signing/notarization and IT approval.
+
+More details: [QUICK_START.md](QUICK_START.md).
+
+## Data protection
+
+This public repository contains application source and *fictional test data only*. Never commit identifiable or deidentified patient spreadsheets, identifier mapping files, or chart exports. Keep your original workbook in institution-approved local or controlled storage. The application reads workbooks locally; it is not a clinical decision tool.
