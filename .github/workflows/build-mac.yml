@@ -1,0 +1,53 @@
+name: Build macOS installer (manual)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hbs-macos-manual
+  cancel-in-progress: false
+
+jobs:
+  macos-universal:
+    runs-on: macos-latest
+    timeout-minutes: 90
+    env:
+      APPLE_SIGNING_IDENTITY: '-'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin,x86_64-apple-darwin
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+      - name: Install and test
+        run: |
+          npm install --no-audit --no-fund
+          npm test
+      - name: Build universal DMG
+        run: npm run desktop:build:mac -- --target universal-apple-darwin
+      - name: Make portable folder
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "release/Absolute HbS Explorer/Data"
+          APP=$(find src-tauri/target -path '*/release/bundle/macos/Absolute HbS Explorer.app' -type d -print -quit)
+          test -n "$APP"
+          ditto "$APP" "release/Absolute HbS Explorer/Absolute HbS Explorer.app"
+          printf '%s\n' 'Put HbS_Absolute_Values.xlsx here on an approved local device.' > 'release/Absolute HbS Explorer/Data/PLACE_XLSX_HERE.txt'
+          (cd release && ditto -c -k --sequesterRsrc --keepParent 'Absolute HbS Explorer' '../Absolute_HbS_Explorer_macOS_portable.zip')
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Absolute-HbS-Explorer-macOS-universal-test
+          path: |
+            src-tauri/target/**/release/bundle/dmg/*.dmg
+            Absolute_HbS_Explorer_macOS_portable.zip
+          if-no-files-found: error
+          retention-days: 7
