@@ -1,0 +1,19 @@
+[package]
+name = "absolute-hbs-explorer"
+version = "0.4.0"
+edition = "2021"
+rust-version = "1.90"
+
+[lib]
+name = "absolute_hbs_explorer_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-dialog = "2"
+serde = { version = "1", features = ["derive"] }
+base64 = "0.22"
+open = "5"

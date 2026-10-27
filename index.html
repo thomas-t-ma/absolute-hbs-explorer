@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob:; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' ipc: http://ipc.localhost ws://localhost:1420 http://localhost:1420;"/>
+  <title>Absolute HbS Explorer</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <script defer src="/plotly.min.js"></script>
+  <script defer src="/data.js"></script>
+  <script defer src="/workbook.js"></script>
+  <script defer src="/drive.js"></script>
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+<div class="shell">
+  <header class="topbar">
+    <div class="brand"><span class="brandmark">HbS</span><div><h1>Absolute HbS Explorer</h1><p>Find patients with faster HbS increases</p></div></div>
+    <div class="topmeta"><span class="offline-chip">● Offline · local files only</span><span class="record-count" id="recordCount"></span></div>
+  </header>
+  <main class="workspace">
+    <aside class="sidebar">
+      <div class="section-title">Explore</div>
+      <nav class="tabs" aria-label="Chart views">
+        <button class="tab active" id="tabOverview" type="button"><span class="tab-icon">▦</span> Patient graphs</button>
+        <button class="tab" id="tabCompare" type="button"><span class="tab-icon">≋</span> Compare patients</button>
+        <button class="tab" id="tabRanking" type="button"><span class="tab-icon">▥</span> High / low drive</button>
+      </nav>
+      <div class="side-divider"></div>
+      <div class="sidebar-heading"><span>Patients</span><span class="small-muted" id="checkedCount"></span></div>
+      <input type="search" id="patientSearch" class="field search" placeholder="Find patient ID or name…" aria-label="Search patients"/>
+      <div class="select-actions"><button type="button" id="selectAll">All patients</button><button type="button" id="selectNone">Clear</button><button type="button" id="selectExamples">Compare extremes</button></div>
+      <div class="patient-list" id="patientList" aria-label="Patient selection"></div>
+      
+    </aside>
+
+    <section class="mainpanel">
+      <div class="data-toolbar">
+        <div class="data-toolbar-text"><div class="eyebrow">CURRENT WORKBOOK</div><strong id="workbookName">Fictional demonstration data</strong><div class="small-muted" id="workbookStatus" role="status">Open an Excel file to work with current patient values.</div></div>
+        <div class="data-toolbar-actions"><button class="light-button" type="button" id="chooseWorkbook">Change workbook…</button><input type="file" id="workbookFile" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden/><button class="light-button" type="button" id="useDemo" title="Show fictional examples, for software testing only">Demo</button></div>
+      </div>
+      <div id="demoWarning" class="demo-warning">DEMO DATA — The charts below are fictional. Place <strong>HbS_Absolute_Values.xlsx</strong> in the <strong>Data</strong> folder beside the app to load your actual data automatically.</div>
+      <div class="page-heading">
+        <div><div class="eyebrow" id="viewEyebrow">PATIENT OVERVIEW</div><h2 id="viewTitle">Individual HbS trends</h2><p class="subtitle" id="viewDescription">Every patient uses the same date and HbS scales, so rises are directly comparable.</p></div>
+      </div>
+      <div class="controls" id="dateControls">
+        <div class="field-group"><label for="fromDate">From</label><input type="date" id="fromDate" class="field"/></div>
+        <div class="field-group"><label for="toDate">To</label><input type="date" id="toDate" class="field"/></div>
+        <button type="button" class="light-button" id="recentDates">Last 3 years</button>
+        <button type="button" class="light-button" id="allDates">All dates</button>
+      </div>
+      <details class="settings-disclosure" id="riseSettings" hidden>
+        <summary>Highlight settings</summary>
+        <div class="settings-inner"><label class="toggle"><input type="checkbox" id="highlight" checked/> Highlight steep HbS increases</label>
+          <div class="field-group threshold"><label for="threshold">Flag positive rises of at least</label><div class="threshold-controls"><input type="range" id="threshold" min="0.5" max="6" step="0.1" value="2.4"/><output id="thresholdLabel">2.4 g/dL / 30 days</output></div></div>
+        </div>
+      </details>
+      <div class="quiet-note" id="rankingHint">High and low are based on the median rise rate among patients in this file, not a clinically validated distinction. At least three rising 7–90-day intervals are required.</div>
+      <div id="modeNotice" class="mode-notice" hidden></div>
+      <div id="chartRegion" aria-live="polite"></div>
+      <div id="pager" class="pager" hidden><button type="button" id="prevPage" class="light-button">← Previous</button><span id="pageLabel"></span><button type="button" id="nextPage" class="light-button">Next →</button></div>
+      <div class="legend" id="overviewLegend" hidden><span><i class="key normal"></i> HbS measurements</span><span><i class="key fast"></i> Steep observed rise</span></div>
+      <div class="legend" id="comparisonLegend" hidden><span><i class="key high-drive"></i> High drive (relative)</span><span><i class="key low-drive"></i> Low drive (relative)</span><span><i class="key insufficient-drive"></i> Insufficient data</span></div>
+      <div class="page-foot">Lines connect samples ≤90 days apart. The labels describe observed HbS accumulation, not confirmed post-RCE proliferative drive. Review RCE/transfusion dates before clinical interpretation.</div>
+    </section>
+
+    <aside class="inspector" id="inspector" hidden>
+      <div class="inspector-title"><div><div class="eyebrow">MEASUREMENT</div><h2>Selected timepoint</h2></div><button id="closeInspector" class="close-inspector" type="button" title="Close details" aria-label="Close details">✕</button></div>
+      <div id="selectedDetails" class="selection-empty"><div class="dot-illustration"><span>●</span></div><strong>Choose a measurement</strong><p>Click any point on a patient graph. Its exact value, calculation, and location in the original spreadsheet will appear here.</p></div>
+      <details class="source-section source-details"><summary>View original spreadsheet row</summary>
+        <div class="source-head"><div><div class="eyebrow">ORIGINAL SPREADSHEET</div><h3>Source row preview</h3></div><span class="source-reference" id="cellReference">Sheet2</span></div>
+        <p class="source-help">This read-only view follows your selected dot. The highlighted row is the exact row from Excel.</p>
+        <div class="sheet-scroll"><table class="sheet" id="sourceSheet"><tbody><tr><td class="placeholder-cell">Select a graph point to see its Excel source.</td></tr></tbody></table></div>
+        <div class="source-actions"><button class="primary-button" id="copyReference" type="button" disabled>Copy Excel cell</button><button class="light-button" id="openWorkbook" type="button" disabled>Open source in Excel</button></div>
+        <div class="status small-muted" id="sourceStatus" role="status"></div>
+      </details>
+      <details class="identity-section"><summary>Patient name display</summary>
+        <div class="sidebar-heading"><span>Patient names</span><span class="local-only">Local only</span></div>
+        <p>Names are shown automatically when FullName is present. Uncheck to hide names during screen sharing.</p>
+        <label class="toggle name-toggle"><input type="checkbox" id="showNames" disabled/> Show patient names</label>
+        <div class="small-muted" id="mappingStatus">This demo contains patient IDs only.</div>
+      </details>
+    </aside>
+  </main>
+</div>
+</body>
+</html>

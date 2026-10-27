@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "main-window",
+  "description": "Minimal permissions: window and application functionality; workbooks are selected using a dedicated Rust dialog command.",
+  "windows": ["main"],
+  "permissions": ["core:default"]
+}
