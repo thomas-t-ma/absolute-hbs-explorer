@@ -12,9 +12,7 @@
     "desktop:dev": "tauri dev",
     "desktop:build": "tauri build",
     "desktop:build:win": "tauri build --bundles nsis",
-    "desktop:build:mac": "tauri build --bundles dmg",
-    "predev": "node scripts/vendor-plotly.mjs",
-    "prebuild": "node scripts/vendor-plotly.mjs"
+    "desktop:build:mac": "tauri build --bundles dmg"
   },
   "dependencies": {},
   "devDependencies": {
